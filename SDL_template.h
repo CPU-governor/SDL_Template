@@ -1,7 +1,7 @@
 #include <SDL2/SDL.h>
 #include <stdbool.h>
 #include <stdio.h>
-
+#include <SDL2/SDL_image.h>
 //CONTENTS OF THIS CODE
 /*
  Global variables >>> line 15
@@ -42,6 +42,8 @@ bool init(const char *title, int width, int height) {
         SDL_Quit();
         return false;
     }
+    // init external libs
+    IMG_Init(IMG_INIT_PNG);
     return true;
 }
 
@@ -147,6 +149,16 @@ void Draw_circle(Color color, int cx, int cy, int radius) {
         }
     }
     SDL_RenderPresent(ren);
+}
+
+ // 		================================IMG, Audio load===========================
+
+void load_img(const char *path){
+	SDL_Surface * img = IMG_Load(path);
+	SDL_Texture * temptex = SDL_CreateTextureFromSurface(ren, img);
+	SDL_RenderCopy(ren, temptex, NULL, NULL);
+	SDL_RenderPresent(ren);
+
 }
 /* example usage 1
 int main (){
