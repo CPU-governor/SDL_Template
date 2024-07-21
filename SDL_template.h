@@ -21,12 +21,15 @@
  bool active = true; // so you can use while (active){ //SDL events}
  bool runing = true; // so you can use while (runing){ //SDL events}
 
+
+ // 		=============INITIALIZATION,WINDOW, EVENTS,===========================
+
 bool init(const char *title, int width, int height) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         printf("SDL_Init Error: %s\n", SDL_GetError());
         return false;
     }
-    win = SDL_CreateWindow(title, 100, 100, width, height, SDL_WINDOW_SHOWN);
+    win = SDL_CreateWindow(title, 100, 100, width, height, SDL_WINDOW_RESIZABLE);
     if (win == NULL) {
         printf("SDL_CreateWindow Error: %s\n", SDL_GetError());
         SDL_Quit();
@@ -79,6 +82,72 @@ void debugger(){
 	    }
 }
 
+ // 		=============COLOR, DRAW(RECT,TRI,CIR),===========================
+typedef struct {
+    Uint8 r;
+    Uint8 g;
+    Uint8 b;
+    Uint8 a;
+} Color;
+typedef enum {
+    FILLED,
+    OUTLINE
+} shapeType;
+
+void Draw_rect(Color color, int width, int height, int xpos, int ypos,shapeType type) {
+    SDL_Rect rect;
+    rect.x = xpos; // X position
+    rect.y = ypos; // Y position
+    rect.w = width; // Width
+    rect.h = height; // Height
+
+    SDL_SetRenderDrawColor(ren, 0, 0, 0, 255); // Black background
+    SDL_RenderClear(ren);
+
+    SDL_SetRenderDrawColor(ren, color.r, color.g, color.b, color.a); // Rectangle color
+     // Draw based on the type
+    if (type == FILLED) {
+        SDL_RenderFillRect(ren, &rect);
+    } else if (type == OUTLINE) {
+        SDL_RenderDrawRect(ren, &rect);
+    }
+    SDL_RenderPresent(ren);
+}
+void Draw_triangle(Color color, int x1, int y1, int x2, int y2, int x3, int y3) {
+    SDL_SetRenderDrawColor(ren, color.r, color.g, color.b, color.a);
+    
+    // Draw the three sides of the triangle
+    SDL_RenderDrawLine(ren, x1, y1, x2, y2);
+    SDL_RenderDrawLine(ren, x2, y2, x3, y3);
+    SDL_RenderDrawLine(ren, x3, y3, x1, y1);
+
+    SDL_RenderPresent(ren);
+}
+
+void Draw_circle(Color color, int cx, int cy, int radius) {
+    SDL_SetRenderDrawColor(ren, color.r, color.g, color.b, color.a);
+    int d = 3 - 2 * radius;
+    int x = 0, y = radius;
+
+    while (y >= x) {
+        SDL_RenderDrawPoint(ren, cx + x, cy + y);
+        SDL_RenderDrawPoint(ren, cx - x, cy + y);
+        SDL_RenderDrawPoint(ren, cx + x, cy - y);
+        SDL_RenderDrawPoint(ren, cx - x, cy - y);
+        SDL_RenderDrawPoint(ren, cx + y, cy + x);
+        SDL_RenderDrawPoint(ren, cx - y, cy + x);
+        SDL_RenderDrawPoint(ren, cx + y, cy - x);
+        SDL_RenderDrawPoint(ren, cx - y, cy - x);
+        x++;
+        if (d > 0) {
+            y--;
+            d = d + 4 * (x - y) + 10;
+        } else {
+            d = d + 4 * x + 6;
+        }
+    }
+    SDL_RenderPresent(ren);
+}
 /* example usage 1
 int main (){
 	init("test",480,320);
