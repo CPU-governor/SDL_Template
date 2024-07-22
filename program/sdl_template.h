@@ -2,27 +2,16 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <SDL2/SDL_image.h>
-//CONTENTS OF THIS CODE
-/*
- Global variables >>> line 15
- init function
- quit function
- event function
- debug function
-
-
-*/
 
 // Global variables
- SDL_Window *win = NULL;
- SDL_Renderer *ren = NULL;
- SDL_Texture *tex = NULL;
- SDL_Surface *surf=NULL;
- bool active = true; // so you can use while (active){ //SDL events}
- bool runing = true; // so you can use while (runing){ //SDL events}
+SDL_Window *win = NULL;
+SDL_Renderer *ren = NULL;
+SDL_Texture *tex = NULL;
+SDL_Surface *surf = NULL;
+bool active = true; // so you can use while (active){ //SDL events}
+bool running = true; // so you can use while (running){ //SDL events}
 
-
- // 		=============INITIALIZATION,WINDOW, EVENTS,===========================
+// =============INITIALIZATION, WINDOW, EVENTS===========================
 
 bool init(const char *title, int width, int height) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -50,7 +39,8 @@ bool init(const char *title, int width, int height) {
 void quit() {
     if (tex) {
         SDL_DestroyTexture(tex);
-    }if (ren) {
+    }
+    if (ren) {
         SDL_DestroyRenderer(ren);
     }
     if (win) {
@@ -58,7 +48,8 @@ void quit() {
     }
     SDL_Quit();
 }
-void events() {
+
+void handle_events() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
@@ -71,32 +62,35 @@ void events() {
         }
     }
 }
-void debugger(){
-	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-	        printf("SDL_Init Error: %s\n", SDL_GetError());
-	    }
-	    if (win == NULL) {
-	        printf("SDL_CreateWindow Error: %s\n", SDL_GetError());
-	        SDL_Quit();
-	    }
-	    if (ren == NULL) {
-	        printf("SDL_CreateRenderer Error: %s\n", SDL_GetError());
-	    }
+
+void debug() {
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+        printf("SDL_Init Error: %s\n", SDL_GetError());
+    }
+    if (win == NULL) {
+        printf("SDL_CreateWindow Error: %s\n", SDL_GetError());
+        SDL_Quit();
+    }
+    if (ren == NULL) {
+        printf("SDL_CreateRenderer Error: %s\n", SDL_GetError());
+    }
 }
 
- // 		=============COLOR, DRAW(RECT,TRI,CIR),===========================
+// =============COLOR, DRAW(RECT, TRI, CIR)===========================
+
 typedef struct {
     Uint8 r;
     Uint8 g;
     Uint8 b;
     Uint8 a;
 } Color;
+
 typedef enum {
     FILLED,
     OUTLINE
-} shapeType;
+} ShapeType;
 
-void Draw_rect(Color color, int width, int height, int xpos, int ypos,shapeType type) {
+void draw_rectangle(Color color, int width, int height, int xpos, int ypos, ShapeType type) {
     SDL_Rect rect;
     rect.x = xpos; // X position
     rect.y = ypos; // Y position
@@ -107,7 +101,7 @@ void Draw_rect(Color color, int width, int height, int xpos, int ypos,shapeType 
     SDL_RenderClear(ren);
 
     SDL_SetRenderDrawColor(ren, color.r, color.g, color.b, color.a); // Rectangle color
-     // Draw based on the type
+    // Draw based on the type
     if (type == FILLED) {
         SDL_RenderFillRect(ren, &rect);
     } else if (type == OUTLINE) {
@@ -115,7 +109,8 @@ void Draw_rect(Color color, int width, int height, int xpos, int ypos,shapeType 
     }
     SDL_RenderPresent(ren);
 }
-void Draw_triangle(Color color, int x1, int y1, int x2, int y2, int x3, int y3) {
+
+void draw_triangle(Color color, int x1, int y1, int x2, int y2, int x3, int y3) {
     SDL_SetRenderDrawColor(ren, color.r, color.g, color.b, color.a);
     
     // Draw the three sides of the triangle
@@ -126,7 +121,7 @@ void Draw_triangle(Color color, int x1, int y1, int x2, int y2, int x3, int y3) 
     SDL_RenderPresent(ren);
 }
 
-void Draw_circle(Color color, int cx, int cy, int radius) {
+void draw_circle(Color color, int cx, int cy, int radius) {
     SDL_SetRenderDrawColor(ren, color.r, color.g, color.b, color.a);
     int d = 3 - 2 * radius;
     int x = 0, y = radius;
@@ -151,26 +146,25 @@ void Draw_circle(Color color, int cx, int cy, int radius) {
     SDL_RenderPresent(ren);
 }
 
- // 		================================IMG, Audio load===========================
+// =============IMG, AUDIO LOAD===========================
 
-void load_img(const char *path){
-	SDL_Surface * img = IMG_Load(path);
-	SDL_Texture * temptex = SDL_CreateTextureFromSurface(ren, img);
-	SDL_RenderCopy(ren, temptex, NULL, NULL);
-	SDL_RenderPresent(ren);
-
+void load_img(const char *path) {
+    SDL_Surface *img = IMG_Load(path);
+    SDL_Texture *temp_tex = SDL_CreateTextureFromSurface(ren, img);
+    SDL_RenderCopy(ren, temp_tex, NULL, NULL);
+    SDL_RenderPresent(ren);
 }
+
 /* example usage 1
 int main (){
-	init("test",480,320);
-	while (active) {
-	  events();
-	
-	        // Update/rendering logic can go here
-	
-	}
-	quit();
-	return 0;
+    init("test", 480, 320);
+    while (active) {
+        handle_events();
+    
+        // Update/rendering logic can go here
+    
+    }
+    quit();
+    return 0;
 }
-
 */
