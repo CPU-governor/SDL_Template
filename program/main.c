@@ -7,8 +7,7 @@ int main() {
         handle_events();
 
         // Clear the screen once per frame
-        SDL_SetRenderDrawColor(ren, 0, 0, 0, 255); // Black background
-        SDL_RenderClear(ren);
+        clear_screen(BLACK);
 		// draw shapes (optional)
         Color red = {255, 0, 0, 255};
         Color color = {0, 0, 255, 255};
@@ -19,8 +18,8 @@ int main() {
         draw_triangle(red, 400, 300, 450, 300, 425, 350, FILLED);
 
         // Present the rendered frame
-        SDL_RenderPresent(ren);
-    }
+        present();
+      }
 
     quit();
     return 0;

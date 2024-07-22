@@ -6,10 +6,7 @@
 // Global variables
 SDL_Window *win = NULL;
 SDL_Renderer *ren = NULL;
-SDL_Texture *tex = NULL;
-SDL_Surface *surf = NULL;
-bool active = true; // so you can use while (active){ //SDL events}
-bool running = true; // so you can use while (running){ //SDL events}
+bool active = true; // so you can use while (active) { // SDL events }
 
 // =============INITIALIZATION, WINDOW, EVENTS===========================
 
@@ -18,12 +15,14 @@ bool init(const char *title, int width, int height) {
         printf("SDL_Init Error: %s\n", SDL_GetError());
         return false;
     }
+    
     win = SDL_CreateWindow(title, 100, 100, width, height, SDL_WINDOW_RESIZABLE);
     if (win == NULL) {
         printf("SDL_CreateWindow Error: %s\n", SDL_GetError());
         SDL_Quit();
         return false;
     }
+
     ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (ren == NULL) {
         SDL_DestroyWindow(win);
@@ -31,21 +30,27 @@ bool init(const char *title, int width, int height) {
         SDL_Quit();
         return false;
     }
-    // init external libs
-    IMG_Init(IMG_INIT_PNG);
+
+    // Init external libs
+    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
+        printf("IMG_Init Error: %s\n", IMG_GetError());
+        SDL_DestroyRenderer(ren);
+        SDL_DestroyWindow(win);
+        SDL_Quit();
+        return false;
+    }
+
     return true;
 }
 
 void quit() {
-    if (tex) {
-        SDL_DestroyTexture(tex);
-    }
     if (ren) {
         SDL_DestroyRenderer(ren);
     }
     if (win) {
         SDL_DestroyWindow(win);
     }
+    IMG_Quit();
     SDL_Quit();
 }
 
@@ -64,19 +69,18 @@ void handle_events() {
 }
 
 void debug() {
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-        printf("SDL_Init Error: %s\n", SDL_GetError());
+    if (SDL_WasInit(SDL_INIT_EVERYTHING) == 0) {
+        printf("SDL is not initialized.\n");
     }
     if (win == NULL) {
         printf("SDL_CreateWindow Error: %s\n", SDL_GetError());
-        SDL_Quit();
     }
     if (ren == NULL) {
         printf("SDL_CreateRenderer Error: %s\n", SDL_GetError());
     }
 }
 
-// =============COLOR, DRAW(RECT, TRI, CIR)===========================
+// =============COLOR, DRAW (RECT, TRI, CIR), RENDER RELATED FUNCTIONS===========================
 
 typedef struct {
     Uint8 r;
@@ -84,6 +88,23 @@ typedef struct {
     Uint8 b;
     Uint8 a;
 } Color;
+
+// Define color constants
+const Color BLACK = {0, 0, 0, 255};
+const Color WHITE = {255, 255, 255, 255};
+const Color RED = {255, 0, 0, 255};
+const Color GREEN = {0, 255, 0, 255};
+const Color BLUE = {0, 0, 255, 255};
+const Color YELLOW = {255, 255, 0, 255};
+const Color CYAN = {0, 255, 255, 255};
+const Color MAGENTA = {255, 0, 255, 255};
+const Color GRAY = {128, 128, 128, 255};
+const Color DARK_GRAY = {64, 64, 64, 255};
+const Color LIGHT_GRAY = {192, 192, 192, 255};
+const Color ORANGE = {255, 165, 0, 255};
+const Color PURPLE = {128, 0, 128, 255};
+const Color PINK = {255, 192, 203, 255};
+const Color BROWN = {139, 69, 19, 255};
 
 typedef enum {
     FILLED,
@@ -170,12 +191,37 @@ void draw_circle(Color color, int cx, int cy, int radius, ShapeType type) {
     }
 }
 
+// =====================CLEAR SCREEN, REFRESH AND PRESENT FUNCTION==========================
+
+void clear_screen(Color color) {
+    SDL_SetRenderDrawColor(ren, color.r, color.g, color.b, color.a);
+    SDL_RenderClear(ren);
+}
+
+
+void present() {
+    SDL_RenderPresent(ren);
+}
+
 // =============IMG, AUDIO LOAD===========================
 
 void load_img(const char *path) {
     SDL_Surface *img = IMG_Load(path);
+    if (img == NULL) {
+        printf("IMG_Load Error: %s\n", IMG_GetError());
+        return;
+    }
+    
     SDL_Texture *temp_tex = SDL_CreateTextureFromSurface(ren, img);
+    if (temp_tex == NULL) {
+        printf("SDL_CreateTextureFromSurface Error: %s\n", SDL_GetError());
+        SDL_FreeSurface(img);
+        return;
+    }
+
     SDL_RenderCopy(ren, temp_tex, NULL, NULL);
     SDL_RenderPresent(ren);
-}
 
+    SDL_DestroyTexture(temp_tex);
+    SDL_FreeSurface(img);
+}
