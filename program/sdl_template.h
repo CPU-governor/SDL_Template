@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 
 // Global variables
 SDL_Window *win = NULL;
@@ -39,7 +40,10 @@ bool init(const char *title, int width, int height) {
         SDL_Quit();
         return false;
     }
-
+	if (TTF_Init() == -1) {
+	    printf("SDL_ttf could not initialize! TTF_Error: %s\n", TTF_GetError());
+	    return -1;
+	}
     return true;
 }
 
@@ -224,4 +228,25 @@ void load_img(const char *path) {
 
     SDL_DestroyTexture(temp_tex);
     SDL_FreeSurface(img);
+}
+
+// =================WRITE TEXT (SDL_TTF)=======================
+int load_font(const char *path,int size){
+		//load font
+	TTF_Font* font = TTF_OpenFont(path, size);
+	if (!font) {
+	    printf("Failed to load font! TTF_Error: %s\n", TTF_GetError());
+	    return -1;
+	}
+}
+int write_text(const char * text,Color color){
+	// render text to surface
+	SDL_Surface* textSurface = TTF_RenderText_Solid(font,text
+	, color);
+	if (!textSurface) {
+	    printf("Unable to render text surface! TTF_Error: %s\n", TTF_GetError());
+	    return -1;
+	}
+	
+	
 }
