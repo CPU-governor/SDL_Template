@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# List of source files and their corresponding output names
+declare -A files
+files["draw.c"]="draw"
+files["text.c"]="text"
+
+# Compile each source file into its own executable
+for src in "${!files[@]}"; do
+    output="${files[$src]}"
+    
+    gcc -o $output $src -lSDL2 -lSDL2_image -lSDL2_ttf
+    
+    # Check if the compilation was successful
+    if [ $? -eq 0 ]; then
+        echo "Compilation of $src successful. You can run the program with ./$output"
+    else
+        echo "Compilation of $src failed. Please check your code for errors."
+    fi
+done

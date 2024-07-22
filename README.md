@@ -14,20 +14,12 @@ int main() {
     while (active) {
         handle_events();
 
-        // Clear the screen once per frame
-        SDL_SetRenderDrawColor(ren, 0, 0, 0, 255); // Black background
-        SDL_RenderClear(ren);
-		// draw shapes (optional)
-        Color red = {255, 0, 0, 255};
-        Color color = {0, 0, 255, 255};
-        Color color2 = {0, 140, 255, 255};
-        draw_rectangle(color, 200, 200, 400, 400, FILLED);
-        draw_rectangle(color, 200, 200, 250, 50, OUTLINE);
-        draw_circle(color2, 100,100,100, FILLED); 
-        draw_triangle(red, 400, 300, 450, 300, 425, 350, FILLED);
-
-        // Present the rendered frame
-        SDL_RenderPresent(ren);
+        clear_screen(BLACK);
+        
+        draw_rectangle(RED, 200, 200, 400, 400, FILLED);
+        draw_rectangle(WHITE, 200, 200, 250, 50, OUTLINE);
+        
+        present();
     }
 
     quit();
@@ -42,8 +34,9 @@ Below contains a list of tasks that need to be implemented for the project.
 
 ### Core Features
 - [x] Init and Quit function (to initialize and close SDL)
-- [ ] Events handling
-- [ ] Draw function (functions to draw shapes)
+- [x] Events handling
+- [x] Draw function (functions to draw shapes)
+- [x] Write Text function
 - [ ] Load media function
 
 ### Advanced Features

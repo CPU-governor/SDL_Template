@@ -40,10 +40,15 @@ bool init(const char *title, int width, int height) {
         SDL_Quit();
         return false;
     }
-	if (TTF_Init() == -1) {
-	    printf("SDL_ttf could not initialize! TTF_Error: %s\n", TTF_GetError());
-	    return -1;
-	}
+
+    if (TTF_Init() == -1) {
+        printf("SDL_ttf could not initialize! TTF_Error: %s\n", TTF_GetError());
+        SDL_DestroyRenderer(ren);
+        SDL_DestroyWindow(win);
+        SDL_Quit();
+        return false;
+    }
+
     return true;
 }
 
@@ -54,6 +59,7 @@ void quit() {
     if (win) {
         SDL_DestroyWindow(win);
     }
+    TTF_Quit();
     IMG_Quit();
     SDL_Quit();
 }
@@ -202,7 +208,6 @@ void clear_screen(Color color) {
     SDL_RenderClear(ren);
 }
 
-
 void present() {
     SDL_RenderPresent(ren);
 }
@@ -231,22 +236,44 @@ void load_img(const char *path) {
 }
 
 // =================WRITE TEXT (SDL_TTF)=======================
-int load_font(const char *path,int size){
-		//load font
-	TTF_Font* font = TTF_OpenFont(path, size);
-	if (!font) {
-	    printf("Failed to load font! TTF_Error: %s\n", TTF_GetError());
-	    return -1;
-	}
+// global variables
+TTF_Font *font = NULL;
+
+int load_font(const char *path, int size) {
+    // Load font
+    font = TTF_OpenFont(path, size);
+    if (!font) {
+        printf("Failed to load font! TTF_Error: %s\n", TTF_GetError());
+        return -1;
+    }
+    return 0;
 }
-int write_text(const char * text,Color color){
-	// render text to surface
-	SDL_Surface* textSurface = TTF_RenderText_Solid(font,text
-	, color);
-	if (!textSurface) {
-	    printf("Unable to render text surface! TTF_Error: %s\n", TTF_GetError());
-	    return -1;
-	}
-	
-	
+
+int write_text(const char *text, Color color) {
+    SDL_Color sdl_color = {color.r, color.g, color.b, color.a};
+    
+    // Render text to surface
+    SDL_Surface *textSurface = TTF_RenderText_Solid(font, text, sdl_color);
+    if (!textSurface) {
+        printf("Unable to render text surface! TTF_Error: %s\n", TTF_GetError());
+        return -1;
+    }
+
+    // Create a Texture from the Surface
+    SDL_Texture *textTexture = SDL_CreateTextureFromSurface(ren, textSurface);
+    if (!textTexture) {
+        printf("Unable to create texture from rendered text! SDL_Error: %s\n", SDL_GetError());
+        SDL_FreeSurface(textSurface);
+        return -1;
+    }
+
+    // Render the text
+    SDL_Rect dst = {0, 0, textSurface->w, textSurface->h};
+    SDL_RenderCopy(ren, textTexture, NULL, &dst);
+
+    // Clean up the surface and texture
+    SDL_FreeSurface(textSurface);
+    SDL_DestroyTexture(textTexture);
+
+    return 0;
 }
