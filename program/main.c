@@ -9,10 +9,7 @@ int main() {
         // Clear the screen once per frame
         clear_screen(BLACK);
 		// draw shapes (optional)
-       load_font("FreeMono.ttf",24);
-       write_text("Priscilla",WHITE);
-       draw_text("CPU Governor",400, 300, 100, 60 ,WHITE); // draw text is different from write text
-        // Present the rendered frame
+
         present();
       }
 
